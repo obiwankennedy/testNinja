@@ -1,30 +1,52 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 
-project(ninjaTest VERSION 1.10.0 LANGUAGES CXX)
+project(testNinja LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# QtCreator supports the following variables for Android, which are identical to qmake Android variables.
+# Check http://doc.qt.io/qt-5/deployment-android.html for more information.
+# They need to be set before the find_package(Qt5 ...) call.
+
+#if(ANDROID)
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+#    if (ANDROID_ABI STREQUAL "armeabi-v7a")
+#        set(ANDROID_EXTRA_LIBS
+#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libcrypto.so
+#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libssl.so)
+#    endif()
+#endif()
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
+
+set(TS_FILES testNinja_en_US.ts)
+
+if(ANDROID)
+  add_library(testNinja SHARED
+    main.cpp
+    mainwindow.cpp
+    mainwindow.h
+    mainwindow.ui
+    ${TS_FILES}
+  )
+else()
+  add_executable(testNinja
+    main.cpp
+    mainwindow.cpp
+    mainwindow.h
+    mainwindow.ui
+    ${TS_FILES}
+  )
 endif()
 
+target_link_libraries(testNinja PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-set(SOURCES main.cpp person.cpp)
-set(HEADERS person.hpp)
-
-set(QT_REQUIRED_VERSION "5.15.0")
-find_package(Qt5 ${QT_REQUIRED_VERSION} CONFIG REQUIRED COMPONENTS Core LinguistTools)
-
-add_subdirectory(translation)
-
-set(RESOURCE_FILES translations.qrc)
-add_custom_target(resources ALL DEPENDS ${RESOURCE_FILES})
-add_dependencies(resources translations)
-
-
-add_executable(ninjaTest ${SOURCES} ${HEADERS} ${RESOURCE_FILES})
-add_dependencies(ninjaTest resources)
-target_link_libraries(ninjaTest PUBLIC Qt5::Core)
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})

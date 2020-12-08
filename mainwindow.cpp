@@ -18,13 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
-#include <QApplication>
-
-int main(int argc, char *argv[])
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+    ui->setupUi(this);
 }
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
